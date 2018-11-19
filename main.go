@@ -29,7 +29,15 @@ func main() {
 	password := os.Getenv("TOUCHNGO_PASSWORD")
 	cardSerialNumber := os.Getenv("TOUCHNGO_CARD_SERIAL_NUMBER")
 
-	ynabClient := ynab.NewClient(accessToken)
+	insecureStr := os.Getenv("INSECURE")
+	insecure := false
+	if insecureStr == "true" || insecureStr == "1" {
+		insecure = true
+		log.Println("WARN: running in insecure mode, which skips TLS verify")
+	}
+
+	ynabClient := ynab.NewClient(accessToken, insecure)
+
 	touchngoClient := touchngo.NewClient(touchngoURL, username, password)
 
 	account, err := ynabClient.GetAccount(budgetID, accountID)

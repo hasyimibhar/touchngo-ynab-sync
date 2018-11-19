@@ -2,6 +2,7 @@ package ynab
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -68,11 +69,27 @@ func (t Transaction) toJSON() interface{} {
 	}
 }
 
-func NewClient(accessToken string) *Client {
+func NewClient(accessToken string, insecure bool) *Client {
+	var httpClient *http.Client
+
+	if insecure {
+		tr := &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+			},
+		}
+
+		httpClient = &http.Client{
+			Transport: tr,
+		}
+	} else {
+		httpClient = http.DefaultClient
+	}
+
 	return &Client{
 		AccessToken: accessToken,
 
-		httpClient: http.DefaultClient,
+		httpClient: httpClient,
 	}
 }
 
@@ -85,7 +102,7 @@ func (c *Client) GetAccount(budgetID string, accountID string) (Account, error) 
 
 	req.Header.Set("Authorization", "Bearer "+c.AccessToken)
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return Account{}, err
 	}
@@ -145,7 +162,7 @@ func (c *Client) CreateTransactions(budgetID string, transactions []Transaction)
 	req.Header.Set("Authorization", "Bearer "+c.AccessToken)
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return err
 	}

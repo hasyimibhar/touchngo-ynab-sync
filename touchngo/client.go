@@ -78,7 +78,7 @@ func (c *Client) GetTransactions(cardSerialNumber string, request *GetTransactio
 
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return []Transaction{}, err
 	}
