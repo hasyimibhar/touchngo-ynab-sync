@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 	"time"
@@ -33,12 +34,14 @@ func main() {
 
 	account, err := ynabClient.GetAccount(budgetID, accountID)
 	if err != nil {
-		panic(err)
+		log.Printf("ERROR: failed to fetch YNAB account: %s", err)
+		os.Exit(1)
 	}
 
 	transactions, err := touchngoClient.GetTransactions(cardSerialNumber, touchngo.Last30Days())
 	if err != nil {
-		panic(err)
+		log.Printf("ERROR: failed to fetch touchngo transactions: %s", err)
+		os.Exit(1)
 	}
 
 	newTransactions := []ynab.Transaction{}
@@ -52,11 +55,12 @@ func main() {
 			createYNABTransactionFromTouchngo(accountID, categoryID, t))
 	}
 
-	fmt.Printf("found %d new transactions\n", len(newTransactions))
+	log.Printf("INFO: found %d new transactions\n", len(newTransactions))
 
 	if len(newTransactions) > 0 {
 		if err := ynabClient.CreateTransactions(budgetID, newTransactions); err != nil {
-			panic(err)
+			log.Printf("ERROR: failed to import transactions: %s", err)
+			os.Exit(1)
 		}
 	}
 
