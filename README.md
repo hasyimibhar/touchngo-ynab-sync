@@ -4,8 +4,6 @@ Import your Touch 'N Go transactions into [YNAB](http://app.youneedabudget.com) 
 
 ## Usage
 
-### Locally
-
 ```sh
 $ export YNAB_ACCESS_TOKEN=XXXX
 $ export YNAB_BUDGET_ID=XXXX
@@ -17,3 +15,7 @@ $ export TOUCHNGO_PASSWORD=XXXX
 $ export TOUCHNGO_CARD_SERIAL_NUMBER=XXXX
 $ go run main.go
 ```
+
+## Result
+
+<img src="public/sample.png" />
